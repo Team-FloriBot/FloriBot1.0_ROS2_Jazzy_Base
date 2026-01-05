@@ -37,6 +37,9 @@ HardwareNode::HardwareNode()
         enc_left_     = std::make_unique<PhidgetEncoderWrapper>(left_sn);
         enc_right_    = std::make_unique<PhidgetEncoderWrapper>(right_sn);
 
+        last_pos_l_ = enc_left_->get_position() * ticks_to_rad_;
+        last_pos_r_ = enc_right_->get_position() * ticks_to_rad_;
+
         RCLCPP_INFO(
             this->get_logger(),
             "Hardware initialisiert (SSC32 + Encoder %d / %d)",
