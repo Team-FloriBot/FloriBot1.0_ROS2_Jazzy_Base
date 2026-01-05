@@ -23,6 +23,9 @@ private:
     // Hauptregel-Loop (Timer)
     void control_loop();
 
+    // Lowpass
+    double lowpass(double v_raw, double v_prev, double dt, double tau);
+
     // ROS
     rclcpp::Subscription<base::msg::WheelVelocities>::SharedPtr sub_;
     rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr pub_;
@@ -40,6 +43,10 @@ private:
     // Zielgeschwindigkeiten
     double target_l_{0.0};
     double target_r_{0.0};
+
+    // gefilterte Geschwindigkeiten
+    double vel_l_filt_{0.0};
+    double vel_r_filt_{0.0};
 
     // Letzte Positionen (für Geschwindigkeitsermittlung)
     // 1440 Ticks pro Motorumdrehung * 20 (Getriebeübersetzung) = 28800 Ticks pro Radumdrehung

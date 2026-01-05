@@ -21,6 +21,7 @@ public:
     /// Berechnet normierte Stellgröße [-output_limit .. +output_limit]
     double compute(double setpoint, double measured, double dt);
 
+
 private:
     // Parameter
     double kp_;

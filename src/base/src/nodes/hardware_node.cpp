@@ -123,8 +123,19 @@ void HardwareNode::control_loop()
     double curr_pos_l = enc_left_->get_position() * ticks_to_rad_;
     double curr_pos_r = enc_right_->get_position() * ticks_to_rad_;
 
+
     double vel_l = (curr_pos_l - last_pos_l_) / dt;
     double vel_r = (curr_pos_r - last_pos_r_) / dt;
+
+    //Schutz gegen Encoder Spikes
+    vel_l = std::clamp(vel_l, -3.0 * max_wheel_speed_, 3.0 * max_wheel_speed_);
+    vel_r = std::clamp(vel_r, -3.0 * max_wheel_speed_, 3.0 * max_wheel_speed_);
+
+
+    //lowpassfilter for encoder signals
+    constexpr double tau = 0.05; // 50 ms
+    vel_l_filt_ = lowpass(vel_l, vel_l_filt_, dt, tau);
+    vel_r_filt_ = lowpass(vel_r, vel_r_filt_, dt, tau);
 
     // --------------------------------------------------
     // Zielwerte aus Mutex kopieren
@@ -144,6 +155,8 @@ void HardwareNode::control_loop()
         pid_right_->reset();
         target_l = 0.0;
         target_r = 0.0;
+        vel_l_filt_ = 0.0;
+        vel_r_filt_ = 0.0;
     }
 
     // --------------------------------------------------
@@ -153,14 +166,19 @@ void HardwareNode::control_loop()
 
     double target_l_norm = clamp(target_l / max_wheel_speed_);
     double target_r_norm = clamp(target_r / max_wheel_speed_);
-    double vel_l_norm    = clamp(vel_l / max_wheel_speed_);
-    double vel_r_norm    = clamp(vel_r / max_wheel_speed_);
+    double vel_l_norm    = clamp(vel_l_filt_ / max_wheel_speed_);
+    double vel_r_norm    = clamp(vel_r_filt_ / max_wheel_speed_);
 
     // --------------------------------------------------
     // PID Berechnung
     // --------------------------------------------------
     double out_l = pid_left_->compute(target_l_norm, vel_l_norm, dt);
     double out_r = pid_right_->compute(target_r_norm, vel_r_norm, dt);
+
+    // Deadband
+    if (std::abs(out_l) < 0.05) out_l = 0.0;
+    if (std::abs(out_r) < 0.05) out_r = 0.0;
+
 
     // --------------------------------------------------
     // PWM mit Deadzone
@@ -197,7 +215,7 @@ void HardwareNode::control_loop()
     state.header.stamp = now;
     state.name = {"left_wheel", "right_wheel"};
     state.position = {curr_pos_l, curr_pos_r};
-    state.velocity = {vel_l, vel_r};
+    state.velocity = {vel_l_filt_, vel_r_filt_};
 
     pub_->publish(state);
 
@@ -206,6 +224,13 @@ void HardwareNode::control_loop()
     // --------------------------------------------------
     last_pos_l_ = curr_pos_l;
     last_pos_r_ = curr_pos_r;
+}
+
+double HardwareNode::lowpass(double v_raw, double v_prev, double dt, double tau)
+{
+    if (dt <= 0.0) return v_prev;
+    const double alpha = dt / (tau + dt);
+    return alpha * v_raw + (1.0 - alpha) * v_prev;
 }
 
 int main(int argc, char **argv)
