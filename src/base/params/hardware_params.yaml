@@ -6,8 +6,8 @@ hardware_node:
     wheel_radius: 0.05
 
     # PID Parameter
-    kp: 0.7
-    ki: 0.0
+    kp: 0.02004
+    ki: 0.40115
     kd: 0.0
 
     # Physische Limits
