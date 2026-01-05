@@ -32,9 +32,9 @@ PIDController::PIDController(
 
 void PIDController::reset()
 {
-    integral_ = 0.0;
-    last_measured_ = 0.0;
+    integrator_ = 0.0;
     last_output_ = 0.0;
+    prev_error_ = 0.0;
     first_run_ = true;
 }
 
@@ -53,35 +53,36 @@ double PIDController::compute(double setpoint, double measured, double dt)
         return 0.0;
     }
 
-    // D-Anteil auf Messwert (rauschärmer)
+    // P-Anteil
+    double P_term = kp_ * error;
+
+    // I-Anteil
+    integrator_ += ki_ * error * dt;
+
+    // D-Anteil
     double derivative = 0.0;
     if (!first_run_) {
-        derivative = -(measured - last_measured_) / dt;
+        derivative = (error - prev_error_) / dt;
     }
+    double D_term = kd_ * derivative; // optional: Filter D_term nach Bedarf
 
-    // Integrator (vorläufig)
-    integral_ += error * dt;
 
     // PID-Rohwert
-    double output =
-        kp_ * error +
-        ki_ * integral_ +
-        kd_ * derivative;
+    double output = P_term + integrator_ + D_term;
 
     // Sättigung + Anti-Windup (Integrator-Clamping)
     if (output > out_lim_) {
         output = out_lim_;
-        integral_ -= error * dt;
+        integrator_ -= ki_ * error * dt;
     }
     else if (output < -out_lim_) {
         output = -out_lim_;
-        integral_ -= error * dt;
+        integrator_ -= ki_ * error * dt;
     }
 
     // Zustand aktualisieren
-    last_measured_ = measured;
-    last_output_   = output;
-    first_run_     = false;
+    prev_error_= error;
+    first_run_ = false;
 
     return output;
 }

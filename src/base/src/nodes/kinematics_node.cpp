@@ -8,9 +8,8 @@ namespace base {
 
 KinematicsNode::KinematicsNode() : Node("kinematics_node") {
     // Parameters
-    this->declare_parameter("wheel_separation", 0.5);
-    this->declare_parameter("wheel_radius", 0.1);
-    this->declare_parameter("use_slip_compensation", true); // Neu: Ein/Ausschaltbar
+    this->declare_parameter("wheel_separation", 0.44);
+    this->declare_parameter("wheel_radius", 0.21);
 
     double wheel_sep = this->get_parameter("wheel_separation").as_double();
     double wheel_rad = this->get_parameter("wheel_radius").as_double();

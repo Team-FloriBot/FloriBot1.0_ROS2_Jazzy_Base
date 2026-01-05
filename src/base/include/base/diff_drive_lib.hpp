@@ -26,13 +26,12 @@ private:
     double kp_;
     double ki_;
     double kd_;
-
     double out_lim_;
     double deadband_;
 
     // Zustände
-    double integral_ = 0.0;
-    double last_measured_ = 0.0;
+    double integrator_ = 0.0;
+    double prev_error_ = 0.0;
     double last_output_ = 0.0;
     bool first_run_ = true;
 };
