@@ -139,7 +139,7 @@ void HardwareNode::control_loop()
     // --------------------------------------------------
     // Watchdog / PID Reset
     // --------------------------------------------------
-    if ((now - last_cmd_time_).seconds() > 0.2) {
+    if ((now - last_cmd_time_).seconds() > 0.3) {
         pid_left_->reset();
         pid_right_->reset();
         target_l = 0.0;
