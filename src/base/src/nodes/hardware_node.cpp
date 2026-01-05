@@ -116,13 +116,9 @@ void HardwareNode::control_loop()
     // --------------------------------------------------
     // Encoder in Rad umrechnen
     // --------------------------------------------------
-    // 1440 Ticks pro Motorumdrehung * 20 (Getriebeübersetzung) = 28800 Ticks pro Radumdrehung
-    constexpr double gear_ratio = 20.0;
-    constexpr double ticks_per_rev = 1440.0 * gear_ratio; 
-    constexpr double ticks_to_rad = (2.0 * M_PI) / ticks_per_rev;
 
-    double curr_pos_l = enc_left_->get_position() * ticks_to_rad;
-    double curr_pos_r = enc_right_->get_position() * ticks_to_rad;
+    double curr_pos_l = enc_left_->get_position() * ticks_to_rad_;
+    double curr_pos_r = enc_right_->get_position() * ticks_to_rad_;
 
     double vel_l = (curr_pos_l - last_pos_l_) / dt;
     double vel_r = (curr_pos_r - last_pos_r_) / dt;
@@ -160,17 +156,17 @@ void HardwareNode::control_loop()
     // --------------------------------------------------
     // PID Berechnung
     // --------------------------------------------------
-    //double out_l = pid_left_->compute(target_l_norm, vel_l_norm, dt);
-    //double out_r = pid_right_->compute(target_r_norm, vel_r_norm, dt);
+    double out_l = pid_left_->compute(target_l_norm, vel_l_norm, dt);
+    double out_r = pid_right_->compute(target_r_norm, vel_r_norm, dt);
 
     // --------------------------------------------------
     // PWM mit Deadzone
     // --------------------------------------------------
-    //auto pwm_left_calc  = [](double u) { return 1500 - static_cast<int>(u * 500.0); };
-    //auto pwm_right_calc = [](double u) { return 1500 + static_cast<int>(u * 500.0); };
+    auto pwm_left_calc  = [](double u) { return 1500 - static_cast<int>(u * 500.0); };
+    auto pwm_right_calc = [](double u) { return 1500 + static_cast<int>(u * 500.0); };
 
-    //int pwm_left  = pwm_left_calc(std::clamp(out_l, -1.0, 1.0));
-    //int pwm_right = pwm_right_calc(std::clamp(out_r, -1.0, 1.0));
+    int pwm_left  = pwm_left_calc(std::clamp(out_l, -1.0, 1.0));
+    int pwm_right = pwm_right_calc(std::clamp(out_r, -1.0, 1.0));
 
     // --------------------------------------------------
     // OPEN-LOOP TEST-MODUS (PID DEAKTIVIERT)
@@ -180,14 +176,14 @@ void HardwareNode::control_loop()
     // Wir skalieren es einfach so, dass max_wheel_speed (z.B. 15.0) 
     // den vollen PWM-Ausschlag (500) ergibt.
     
-    double u_left  = std::clamp(target_l / max_wheel_speed_, -1.0, 1.0);
-    double u_right = std::clamp(target_r / max_wheel_speed_, -1.0, 1.0);
+    //double u_left  = std::clamp(target_l / max_wheel_speed_, -1.0, 1.0);
+    //double u_right = std::clamp(target_r / max_wheel_speed_, -1.0, 1.0);
 
     // PWM-Berechnung (Anpassung an deine alte SSC32-Logik)
     // Links: Vorwärts = kleinere PWM (1500 -> 1000)
     // Rechts: Vorwärts = größere PWM (1500 -> 2000)
-    int pwm_left  = 1500 - static_cast<int>(u_left * 500.0);
-    int pwm_right = 1500 + static_cast<int>(u_right * 500.0);
+    //int pwm_left  = 1500 - static_cast<int>(u_left * 500.0);
+    //int pwm_right = 1500 + static_cast<int>(u_right * 500.0);
 
     motor_driver_->send_commands(pwm_left, pwm_right);
 

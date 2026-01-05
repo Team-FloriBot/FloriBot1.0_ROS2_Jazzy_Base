@@ -4,7 +4,6 @@ hardware_node:
     left_enc_serial: 101902
     right_enc_serial: 102191
     wheel_radius: 0.05
-    ticks_per_rev: 1440.0
 
     # PID Parameter
     kp: 0.02

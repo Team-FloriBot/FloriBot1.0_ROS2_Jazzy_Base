@@ -48,10 +48,10 @@ double PIDController::compute(double setpoint, double measured, double dt)
     const double error = setpoint - measured;
 
     // Deadband um 0
-    if (std::abs(error) < deadband_) {
-        last_output_ = 0.0;
-        return 0.0;
-    }
+    //if (std::abs(error) < deadband_) {
+    //    last_output_ = 0.0;
+    //    return 0.0;
+    //}
 
     // P-Anteil
     double P_term = kp_ * error;
