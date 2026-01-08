@@ -50,8 +50,9 @@ private:
 
     // Letzte Positionen (für Geschwindigkeitsermittlung)
     // 1440 Ticks pro Motorumdrehung * 20 (Getriebeübersetzung) = 28800 Ticks pro Radumdrehung
-    static constexpr double gear_ratio_ = 20.0;
-    static constexpr double ticks_per_rev_ = 1440.0 * gear_ratio_; 
+    //static constexpr double gear_ratio_ = 20.0;
+    //static constexpr double ticks_per_rev_ = 1440.0 * gear_ratio_; 
+    static constexpr double ticks_per_rev_ = 40148; //gemessen
     static constexpr double ticks_to_rad_ = (2.0 * M_PI) / ticks_per_rev_;
 
     double last_pos_l_{0.0};
