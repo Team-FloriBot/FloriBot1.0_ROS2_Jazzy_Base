@@ -10,6 +10,10 @@ hardware_node:
     ki: 0.40115
     kd: 0.0
 
+    #kp: 0.2
+    #ki: 0.0
+    #kd: 0.0
+
     # Physische Limits
     max_wheel_speed: 24.0  # rad/s
     deadband: 0.05
