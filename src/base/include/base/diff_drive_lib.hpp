@@ -34,6 +34,8 @@ private:
     double integrator_ = 0.0;
     double prev_error_ = 0.0;
     double last_output_ = 0.0;
+    double max_accel_ = 2.0;
+    double ramped_setpoint_ = 0.0;
     bool first_run_ = true;
 };
 

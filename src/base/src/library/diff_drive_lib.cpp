@@ -38,20 +38,31 @@ void PIDController::reset()
     first_run_ = true;
 }
 
-double PIDController::compute(double setpoint, double measured, double dt)
+double PIDController::compute(double target_setpoint, double measured, double dt)
 {
     if (dt <= 0.0) {
         return last_output_;
     }
 
-    // Fehler
-    const double error = setpoint - measured;
+    // --- RAMPE BERECHNEN ---
+    // Wie viel darf sich der Sollwert in diesem Zeitschritt maximal ändern?
+    double max_change = max_accel_ * dt;
+    double error_setpoint = target_setpoint - ramped_setpoint_;
 
-    // Deadband um 0
-    //if (std::abs(error) < deadband_) {
-    //    last_output_ = 0.0;
-    //    return 0.0;
-    //}
+    if (first_run_){
+        ramped_setpoint_ = measured;
+    }
+
+    // Begrenze die Änderung des ramped_setpoint_ auf max_change
+    if (error_setpoint > max_change) {
+        ramped_setpoint_ += max_change;
+    } else if (error_setpoint < -max_change) {
+        ramped_setpoint_ -= max_change;
+    } else {
+        ramped_setpoint_ = target_setpoint;
+    }
+
+    const double error = ramped_setpoint_ - measured;
 
     // P-Anteil
     double P_term = kp_ * error;
@@ -81,7 +92,8 @@ double PIDController::compute(double setpoint, double measured, double dt)
     }
 
     // Zustand aktualisieren
-    prev_error_= error;
+    prev_error_ = error;
+    last_output_ = output;
     first_run_ = false;
 
     return output;
