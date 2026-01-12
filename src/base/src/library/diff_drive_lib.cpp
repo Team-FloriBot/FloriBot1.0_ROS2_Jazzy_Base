@@ -75,7 +75,7 @@ double PIDController::compute(double target_setpoint, double measured, double dt
     if (!first_run_) {
         derivative = (error - prev_error_) / dt;
     }
-    double D_term = kd_ * derivative; // optional: Filter D_term nach Bedarf
+    double D_term = kd_ * derivative; 
 
 
     // PID-Rohwert
