@@ -2,6 +2,7 @@ import asyncio
 import json
 import signal
 import time
+import os
 from pathlib import Path
 
 import rclpy
@@ -11,6 +12,8 @@ from geometry_msgs.msg import Twist
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+
+from ament_index_python.packages import get_package_share_directory
 
 
 class CmdVelBridge(Node):
@@ -55,19 +58,18 @@ class CmdVelBridge(Node):
 
 
 async def ros_spin(node: Node, stop_event: asyncio.Event):
-    # spin_once in einer asyncio-Schleife, bis stop_event gesetzt ist
     try:
         while rclpy.ok() and not stop_event.is_set():
             rclpy.spin_once(node, timeout_sec=0.0)
             await asyncio.sleep(0.001)
     except asyncio.CancelledError:
-        # Task wird beim Shutdown gecancelt
         pass
 
 
 def build_app(bridge: CmdVelBridge) -> FastAPI:
-    pkg_dir = Path(__file__).resolve().parent
-    static_dir = pkg_dir / "static"
+    # 🔧 ROS2-konformer Pfad zum share-Verzeichnis
+    pkg_share = Path(get_package_share_directory("web_teleop"))
+    static_dir = pkg_share / "static"
     index_file = static_dir / "index.html"
 
     if not static_dir.is_dir():
@@ -76,7 +78,12 @@ def build_app(bridge: CmdVelBridge) -> FastAPI:
         raise RuntimeError(f"Index file not found: {index_file}")
 
     app = FastAPI()
-    app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
+    app.mount(
+        "/static",
+        StaticFiles(directory=str(static_dir)),
+        name="static",
+    )
 
     @app.get("/")
     def index():
@@ -89,7 +96,10 @@ def build_app(bridge: CmdVelBridge) -> FastAPI:
             while True:
                 data = await ws.receive_text()
                 obj = json.loads(data)
-                bridge.update(float(obj.get("v", 0.0)), float(obj.get("w", 0.0)))
+                bridge.update(
+                    float(obj.get("v", 0.0)),
+                    float(obj.get("w", 0.0)),
+                )
                 await ws.send_text('{"ok": true}')
         except (WebSocketDisconnect, json.JSONDecodeError, ValueError):
             return
@@ -113,20 +123,16 @@ async def main_async():
     server = uvicorn.Server(config)
 
     stop_event = asyncio.Event()
-
     loop = asyncio.get_running_loop()
 
     def request_shutdown():
-        # Uvicorn und ROS Tasks zum Beenden auffordern
         stop_event.set()
         server.should_exit = True
 
-    # Sauberes Ctrl+C / systemd stop
     try:
         loop.add_signal_handler(signal.SIGINT, request_shutdown)
         loop.add_signal_handler(signal.SIGTERM, request_shutdown)
     except NotImplementedError:
-        # Fallback (z.B. auf Plattformen ohne add_signal_handler)
         signal.signal(signal.SIGINT, lambda *_: request_shutdown())
         signal.signal(signal.SIGTERM, lambda *_: request_shutdown())
 
@@ -134,22 +140,18 @@ async def main_async():
     web_task = asyncio.create_task(server.serve())
 
     try:
-        # Warte bis einer fertig ist (oder Signal kommt)
         done, pending = await asyncio.wait(
             {ros_task, web_task},
             return_when=asyncio.FIRST_COMPLETED,
         )
 
-        # Wenn Uvicorn beendet (oder Signal), Shutdown anstoßen
         request_shutdown()
 
-        # Restliche Tasks beenden
         for t in pending:
             t.cancel()
         await asyncio.gather(*pending, return_exceptions=True)
 
     finally:
-        # ROS sauber runterfahren
         try:
             bridge.destroy_node()
         except Exception:
