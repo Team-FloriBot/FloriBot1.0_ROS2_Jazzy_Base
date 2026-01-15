@@ -25,6 +25,9 @@ HardwareNode::HardwareNode()
     this->declare_parameter("ki_l", 0.0);
     this->declare_parameter("kd_l", 0.0);
 
+    this->declare_parameter("kS_l", 0.0);
+    this->declare_parameter("kS_r", 0.0);
+
     this->declare_parameter("max_wheel_speed", 10.0); // [rad/s]
 
     const std::string serial_port = this->get_parameter("serial_port").as_string();
@@ -64,13 +67,15 @@ HardwareNode::HardwareNode()
     double kp_r = this->get_parameter("kp_r").as_double();
     double ki_r = this->get_parameter("ki_r").as_double();
     double kd_r = this->get_parameter("kd_r").as_double();
+    double kS_r = this->get_parameter("kS_r").as_double();
 
     double kp_l = this->get_parameter("kp_l").as_double();
     double ki_l = this->get_parameter("ki_l").as_double();
     double kd_l = this->get_parameter("kd_l").as_double();
+    double kS_l = this->get_parameter("kS_l").as_double();
 
-    pid_left_  = std::make_unique<PIDController>(kp_l, ki_l, kd_l);
-    pid_right_ = std::make_unique<PIDController>(kp_r, ki_r, kd_r);
+    pid_left_  = std::make_unique<PIDController>(kp_l, ki_l, kd_l, kS_l);
+    pid_right_ = std::make_unique<PIDController>(kp_r, ki_r, kd_r, kS_r);
 
     // --------------------------------------------------
     // Subscriber / Publisher
@@ -194,8 +199,8 @@ void HardwareNode::control_loop()
         // --------------------------------------------------
         // PID Berechnung
         // --------------------------------------------------
-        double out_l = pid_left_->compute(target_l_norm, vel_l_norm, dt);
-        double out_r = pid_right_->compute(target_r_norm, vel_r_norm, dt);
+        out_l = pid_left_->compute(target_l_norm, vel_l_norm, dt);
+        out_r = pid_right_->compute(target_r_norm, vel_r_norm, dt);
 
         // Deadband
         if (std::abs(out_l) < 0.05) out_l = 0.0;

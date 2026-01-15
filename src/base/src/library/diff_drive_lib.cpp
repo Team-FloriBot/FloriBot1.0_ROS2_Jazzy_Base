@@ -19,12 +19,14 @@ PIDController::PIDController(
     double kp,
     double ki,
     double kd,
+    double kS,
     double output_limit,
     double deadband
 )
 : kp_(kp),
   ki_(ki),
   kd_(kd),
+  kS_(kS),
   out_lim_(std::abs(output_limit)),
   deadband_(std::abs(deadband))
 {
@@ -90,6 +92,10 @@ double PIDController::compute(double target_setpoint, double measured, double dt
         output = -out_lim_;
         integrator_ -= ki_ * error * dt;
     }
+
+    // Feed Forward
+
+    output += (target_setpoint >0 ) ? kS_ : -kS_;
 
     // Zustand aktualisieren
     prev_error_ = error;

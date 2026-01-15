@@ -11,6 +11,7 @@ public:
         double kp,
         double ki,
         double kd,
+        double ks,
         double output_limit = 1.0,
         double deadband = 0.05
     );
@@ -27,6 +28,7 @@ private:
     double kp_;
     double ki_;
     double kd_;
+    double kS_;
     double out_lim_;
     double deadband_;
 
