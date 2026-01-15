@@ -155,6 +155,10 @@ void HardwareNode::control_loop()
         target_r = target_r_;
     }
 
+    // Variablen für den normierten Output (-1.0 bis 1.0)
+    double out_l = 0.0;
+    double out_r = 0.0;
+
     // --------------------------------------------------
     // Watchdog / PID Reset
     // --------------------------------------------------
@@ -172,47 +176,37 @@ void HardwareNode::control_loop()
     // --------------------------------------------------
     auto clamp = [](double v) { return std::max(-1.0, std::min(1.0, v)); };
 
-    double target_l_norm = clamp(target_l / max_wheel_speed_);
-    double target_r_norm = clamp(target_r / max_wheel_speed_);
-    double vel_l_norm    = clamp(vel_l_filt_ / max_wheel_speed_);
-    double vel_r_norm    = clamp(vel_r_filt_ / max_wheel_speed_);
+    if (open_loop_) {
+        // --- OPEN-LOOP MODUS ---
+        // Direkte Skalierung ohne PID-Einfluss
+        out_l = std::clamp(target_l / max_wheel_speed_, -1.0, 1.0);
+        out_r = std::clamp(target_r / max_wheel_speed_, -1.0, 1.0);
+    }
 
-    // --------------------------------------------------
-    // PID Berechnung
-    // --------------------------------------------------
-    double out_l = pid_left_->compute(target_l_norm, vel_l_norm, dt);
-    double out_r = pid_right_->compute(target_r_norm, vel_r_norm, dt);
+    else{
 
-    // Deadband
-    if (std::abs(out_l) < 0.05) out_l = 0.0;
-    if (std::abs(out_r) < 0.05) out_r = 0.0;
-
-
-    // --------------------------------------------------
-    // PWM mit Deadzone
-    // --------------------------------------------------
-    auto pwm_left_calc  = [](double u) { return 1500 - static_cast<int>(u * 500.0); };
-    auto pwm_right_calc = [](double u) { return 1500 + static_cast<int>(u * 500.0); };
-
-    int pwm_left  = pwm_left_calc(std::clamp(out_l, -1.0, 1.0));
-    int pwm_right = pwm_right_calc(std::clamp(out_r, -1.0, 1.0));
-
-    // --------------------------------------------------
-    // OPEN-LOOP TEST-MODUS (PID DEAKTIVIERT)
-    // --------------------------------------------------
+        double target_l_norm = clamp(target_l / max_wheel_speed_);
+        double target_r_norm = clamp(target_r / max_wheel_speed_);
+        double vel_l_norm    = clamp(vel_l_filt_ / max_wheel_speed_);
+        double vel_r_norm    = clamp(vel_r_filt_ / max_wheel_speed_);
     
-    // Wir nehmen an: target_l/r kommt in rad/s.
-    // Wir skalieren es einfach so, dass max_wheel_speed (z.B. 15.0) 
-    // den vollen PWM-Ausschlag (500) ergibt.
-    
-    //double u_left  = std::clamp(target_l / max_wheel_speed_, -1.0, 1.0);
-    //double u_right = std::clamp(target_r / max_wheel_speed_, -1.0, 1.0);
 
-    // PWM-Berechnung (Anpassung an deine alte SSC32-Logik)
-    // Links: Vorwärts = kleinere PWM (1500 -> 1000)
-    // Rechts: Vorwärts = größere PWM (1500 -> 2000)
-    //int pwm_left  = 1500 - static_cast<int>(u_left * 500.0);
-    //int pwm_right = 1500 + static_cast<int>(u_right * 500.0);
+        // --------------------------------------------------
+        // PID Berechnung
+        // --------------------------------------------------
+        double out_l = pid_left_->compute(target_l_norm, vel_l_norm, dt);
+        double out_r = pid_right_->compute(target_r_norm, vel_r_norm, dt);
+
+        // Deadband
+        if (std::abs(out_l) < 0.05) out_l = 0.0;
+        if (std::abs(out_r) < 0.05) out_r = 0.0;
+
+    }    
+
+    int pwm_left  = 1500 - static_cast<int>(out_l * 500.0);
+    int pwm_right = 1500 + static_cast<int>(out_r * 500.0);
+
+    
 
     motor_driver_->send_commands(pwm_left, pwm_right);
 

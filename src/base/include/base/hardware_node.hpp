@@ -60,10 +60,12 @@ private:
 
     // Zeitstempel
     rclcpp::Time last_time_;
-    rclcpp::Time last_cmd_time_;  // <--- hinzugefügt
+    rclcpp::Time last_cmd_time_;  
 
     // Sicherheitsparameter
-    double max_wheel_speed_{1.0}; // <--- hinzugefügt, kann über Parameter gesetzt werden
+    double max_wheel_speed_{1.0}; 
+
+    bool open_loop_{true};
 
     // Thread-Sicherheit
     std::mutex mtx_;
