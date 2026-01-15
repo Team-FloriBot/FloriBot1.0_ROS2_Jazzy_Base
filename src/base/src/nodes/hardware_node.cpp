@@ -17,9 +17,13 @@ HardwareNode::HardwareNode()
     this->declare_parameter("left_enc_serial", 101902);
     this->declare_parameter("right_enc_serial", 102191);
 
-    this->declare_parameter("kp", 0.02);
-    this->declare_parameter("ki", 0.0);
-    this->declare_parameter("kd", 0.0);
+    this->declare_parameter("kp_r", 0.02);
+    this->declare_parameter("ki_r", 0.0);
+    this->declare_parameter("kd_r", 0.0);
+
+    this->declare_parameter("kp_l", 0.02);
+    this->declare_parameter("ki_l", 0.0);
+    this->declare_parameter("kd_l", 0.0);
 
     this->declare_parameter("max_wheel_speed", 10.0); // [rad/s]
 
@@ -57,12 +61,16 @@ HardwareNode::HardwareNode()
     // --------------------------------------------------
     // PID Controller initialisieren
     // --------------------------------------------------
-    double kp = this->get_parameter("kp").as_double();
-    double ki = this->get_parameter("ki").as_double();
-    double kd = this->get_parameter("kd").as_double();
+    double kp_r = this->get_parameter("kp_r").as_double();
+    double ki_r = this->get_parameter("ki_r").as_double();
+    double kd_r = this->get_parameter("kd_r").as_double();
 
-    pid_left_  = std::make_unique<PIDController>(kp, ki, kd);
-    pid_right_ = std::make_unique<PIDController>(kp, ki, kd);
+    double kp_l = this->get_parameter("kp_l").as_double();
+    double ki_l = this->get_parameter("ki_l").as_double();
+    double kd_l = this->get_parameter("kd_l").as_double();
+
+    pid_left_  = std::make_unique<PIDController>(kp_l, ki_l, kd_l);
+    pid_right_ = std::make_unique<PIDController>(kp_r, ki_r, kd_r);
 
     // --------------------------------------------------
     // Subscriber / Publisher
@@ -133,7 +141,7 @@ void HardwareNode::control_loop()
 
 
     //lowpassfilter for encoder signals
-    constexpr double tau = 0.05; // 50 ms
+    constexpr double tau = 0.01 // 10 ms
     vel_l_filt_ = lowpass(vel_l, vel_l_filt_, dt, tau);
     vel_r_filt_ = lowpass(vel_r, vel_r_filt_, dt, tau);
 

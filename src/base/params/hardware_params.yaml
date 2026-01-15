@@ -10,9 +10,13 @@ hardware_node:
     #ki: 0.40115
     #kd: 0.0
 
-    kp: 1.0
-    ki: 0.9
-    kd: 0.0
+    kp_r: 1.0
+    ki_r: 0.9
+    kd_r: 0.0
+
+    kp_l: 1.0
+    ki_l: 0.9
+    kd_l: 0.0
 
     # Physische Limits
     max_wheel_speed: 24.0  # rad/s
