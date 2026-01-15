@@ -94,8 +94,22 @@ double PIDController::compute(double target_setpoint, double measured, double dt
     }
 
     // Feed Forward
+    double ff_term = 0.0;
+    double threshold = 0.0001; // Sehr kleiner Schwellwert
 
-    output += (target_setpoint >0 ) ? kS_ : -kS_;
+    if (target_setpoint > threshold) {
+        ff_term = kS_;
+    } 
+
+    else if (target_setpoint < -threshold) {
+    ff_term = -kS_;
+    } 
+
+    else {
+    ff_term = 0.0; // Im Stillstand kein "Schubs"
+    }
+
+    output += ff_term;
 
     // Zustand aktualisieren
     prev_error_ = error;
