@@ -11,12 +11,12 @@ hardware_node:
     #kd: 0.0
 
     kp_r: 1.05
-    ki_r: 0.95
+    ki_r: 1.0
     kd_r: 0.0
     kS_r: 0.0700
 
     kp_l: 1.0
-    ki_l: 0.9
+    ki_l: 1.0
     kd_l: 0.0
     kS_l: 0.0479
 
