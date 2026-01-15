@@ -65,7 +65,7 @@ private:
     // Sicherheitsparameter
     double max_wheel_speed_{1.0}; 
 
-    bool open_loop_{true};
+    bool open_loop_{false};
 
     // Thread-Sicherheit
     std::mutex mtx_;
