@@ -147,11 +147,9 @@ void HardwareNode::control_loop()
 
     //lowpassfilter for encoder signals
     constexpr double tau = 0.01; // 10 ms
-    //vel_l_filt_ = lowpass(vel_l, vel_l_filt_, dt, tau);
-    //vel_r_filt_ = lowpass(vel_r, vel_r_filt_, dt, tau);
+    vel_l_filt_ = lowpass(vel_l, vel_l_filt_, dt, tau);
+    vel_r_filt_ = lowpass(vel_r, vel_r_filt_, dt, tau);
 
-    vel_l_filt_ = vel_l;
-    vel_r_filt_ = vel_r;
 
     // --------------------------------------------------
     // Zielwerte aus Mutex kopieren
