@@ -42,7 +42,7 @@ def generate_launch_description():
         executable='hardware_node',
         name='hardware_node',
         output='screen',
-        # Kombiniere YAML-Datei mit Overrides
+
         parameters=[hardware_config]
         
     )

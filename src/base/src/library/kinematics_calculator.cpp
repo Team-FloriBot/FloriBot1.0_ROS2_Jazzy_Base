@@ -55,4 +55,4 @@ RobotTwist KinematicsCalculator::calculateRobotTwist(const WheelSpeedSet& speeds
     return twist;
 }
 
-} // namespace base
+} 
