@@ -1,4 +1,0 @@
-rf2o-laser-odometry installieren
-
-sudo apt update
-sudo apt install ros-jazzy-rf2o-laser-odometry

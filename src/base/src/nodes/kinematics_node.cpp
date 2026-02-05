@@ -18,35 +18,26 @@ KinematicsNode::KinematicsNode() : Node("kinematics_node") {
     kinematics_ = std::make_unique<KinematicsCalculator>(wheel_sep, wheel_rad);
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
-    // --- Setup Pub/Sub ---
+    // Setup Pub/Sub
     sub_cmd_vel_ = this->create_subscription<geometry_msgs::msg::Twist>(
         "/cmd_vel", 10, std::bind(&KinematicsNode::cmdVelCallback, this, _1));
 
     sub_wheel_states_ = this->create_subscription<sensor_msgs::msg::JointState>(
-        "/wheel_states", 10, std::bind(&KinematicsNode::wheelStateCallback, this, _1));
-
-    // NEU: Abo für LiDAR-Odometrie (z.B. von rf2o oder slam_toolbox)
-    sub_lidar_odom_ = this->create_subscription<nav_msgs::msg::Odometry>(
-        "/odom_lidar", 10, [this](const nav_msgs::msg::Odometry::SharedPtr msg) {
-            latest_actual_twist_.linear_x = msg->twist.twist.linear.x;
-            latest_actual_twist_.angular_z = msg->twist.twist.angular.z;
-            last_lidar_update_ = this->now();
-        });
+    "/wheel_states", 10, std::bind(&KinematicsNode::wheelStateCallback, this, _1));
 
     pub_wheel_cmd_ = this->create_publisher<base::msg::WheelVelocities>("/wheel_commands", 10);
     pub_odom_ = this->create_publisher<nav_msgs::msg::Odometry>("/odom", 10);
 
     last_odom_time_ = this->now();
-    last_lidar_update_ = this->now();
     
-    RCLCPP_INFO(this->get_logger(), "Kinematics Node mit Schlupfkompensation bereit.");
+    RCLCPP_INFO(this->get_logger(), "Kinematics Node Initialized. Sep: %.2f, Rad: %.2f", wheel_sep, wheel_rad);
 }
 
 void KinematicsNode::cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg) {
-    // 1. Calculate target wheel speeds
+    // Calculate target wheel speeds
     WheelSpeedSet speeds = kinematics_->calculateWheelSpeeds(msg->linear.x, msg->angular.z);
 
-    // 2. Publish
+    // Publish
     base::msg::WheelVelocities out_msg;
     out_msg.left = speeds.left;
     out_msg.right = speeds.right;
