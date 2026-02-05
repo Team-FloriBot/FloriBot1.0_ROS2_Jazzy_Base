@@ -6,10 +6,6 @@ hardware_node:
     wheel_radius: 0.05
 
     # PID Parameter
-    #kp: 0.02004
-    #ki: 0.40115
-    #kd: 0.0
-
     kp_r: 1.05
     ki_r: 1.1
     kd_r: 0.0

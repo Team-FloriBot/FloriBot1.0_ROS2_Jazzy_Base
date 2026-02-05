@@ -227,9 +227,7 @@ void HardwareNode::control_loop()
 
     pub_->publish(state);
 
-    // --------------------------------------------------
     // letzte Position speichern
-    // --------------------------------------------------
     last_pos_l_ = curr_pos_l;
     last_pos_r_ = curr_pos_r;
 }

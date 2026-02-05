@@ -34,10 +34,10 @@ KinematicsNode::KinematicsNode() : Node("kinematics_node") {
 }
 
 void KinematicsNode::cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg) {
-    // 1. Calculate target wheel speeds
+    // Calculate target wheel speeds
     WheelSpeedSet speeds = kinematics_->calculateWheelSpeeds(msg->linear.x, msg->angular.z);
 
-    // 2. Publish
+    // Publish
     base::msg::WheelVelocities out_msg;
     out_msg.left = speeds.left;
     out_msg.right = speeds.right;
@@ -52,16 +52,16 @@ void KinematicsNode::wheelStateCallback(const sensor_msgs::msg::JointState::Shar
     // Safety Checks
     if (dt <= 0 || msg->velocity.size() < 2) return;
 
-    // 1. Convert JointState (rad/s) to robot twist
+    // Convert JointState (rad/s) to robot twist
     WheelSpeedSet measured;
     
-    // Annahme: Index 0 = links, Index 1 = rechts (wie im hardware_node definiert)
+    // Annahme: Index 0 = links, Index 1 = rechts
     measured.left = msg->velocity[0];
     measured.right = msg->velocity[1];
 
     RobotTwist twist = kinematics_->calculateRobotTwist(measured);
 
-    // 2. Integrate position
+    // Integrate position
     double delta_x = (twist.linear_x * cos(theta_) - twist.linear_y * sin(theta_)) * dt;
     double delta_y = (twist.linear_x * sin(theta_) + twist.linear_y * cos(theta_)) * dt;
     double delta_th = twist.angular_z * dt;
@@ -70,7 +70,7 @@ void KinematicsNode::wheelStateCallback(const sensor_msgs::msg::JointState::Shar
     y_ += delta_y;
     theta_ += delta_th;
 
-    // 3. Publish Odom & TF
+    // Publish Odom & TF
     publishOdometry(twist, dt);
     
     last_odom_time_ = current_time;

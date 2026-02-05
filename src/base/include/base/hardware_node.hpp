@@ -17,10 +17,10 @@ public:
     HardwareNode();
 
 private:
-    // Callback für eingehende Wheel-Commands
+    // Callback für Wheel-Commands
     void command_callback(const base::msg::WheelVelocities::SharedPtr msg);
 
-    // Hauptregel-Loop (Timer)
+    // Hauptregel-Loop
     void control_loop();
 
     // Lowpass
@@ -49,10 +49,7 @@ private:
     double vel_r_filt_{0.0};
 
     // Letzte Positionen (für Geschwindigkeitsermittlung)
-    // 1440 Ticks pro Motorumdrehung * 20 (Getriebeübersetzung) = 28800 Ticks pro Radumdrehung
-    //static constexpr double gear_ratio_ = 20.0;
-    //static constexpr double ticks_per_rev_ = 1440.0 * gear_ratio_; 
-    static constexpr double ticks_per_rev_ = 40000; //gemessen
+    static constexpr double ticks_per_rev_ = 40000; 
     static constexpr double ticks_to_rad_ = (2.0 * M_PI) / ticks_per_rev_;
 
     double last_pos_l_{0.0};
@@ -71,4 +68,4 @@ private:
     std::mutex mtx_;
 };
 
-#endif  // HARDWARE_NODE_HPP
+#endif 

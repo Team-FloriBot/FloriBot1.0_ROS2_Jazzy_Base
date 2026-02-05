@@ -46,8 +46,7 @@ double PIDController::compute(double target_setpoint, double measured, double dt
         return last_output_;
     }
 
-    // --- RAMPE BERECHNEN ---
-    // Wie viel darf sich der Sollwert in diesem Zeitschritt maximal ändern?
+    // Rampe berechnen
     double max_change = max_accel_ * dt;
     double error_setpoint = target_setpoint - ramped_setpoint_;
 
@@ -95,7 +94,7 @@ double PIDController::compute(double target_setpoint, double measured, double dt
 
     // Feed Forward
     double ff_term = 0.0;
-    double threshold = 0.0001; // Sehr kleiner Schwellwert
+    double threshold = 0.0001; 
 
     if (target_setpoint > threshold) {
         ff_term = kS_;
@@ -106,7 +105,7 @@ double PIDController::compute(double target_setpoint, double measured, double dt
     } 
 
     else {
-    ff_term = 0.0; // Im Stillstand kein "Schubs"
+    ff_term = 0.0; 
     }
 
     output += ff_term;
@@ -223,14 +222,13 @@ PhidgetEncoderWrapper::PhidgetEncoderWrapper(int expected_serial)
         throw std::runtime_error("Phidget: Encoder_create failed");
     }
 
-    // Attach callback (wie ROS1)
+    // Attach callback
     CPhidget_set_OnAttach_Handler(
         (CPhidgetHandle)h,
         AttachHandler,
         nullptr
     );
 
-    // WICHTIG: exakt wie im ROS1-Code
     result = CPhidget_open((CPhidgetHandle)h, -1);
     if (result != 0) {
         CPhidget_delete((CPhidgetHandle)h);
@@ -265,7 +263,7 @@ PhidgetEncoderWrapper::PhidgetEncoderWrapper(int expected_serial)
         );
     }
 
-    // Initialer Read (Sanity)
+    // Initialer Read
     int pos = 0;
     CPhidgetEncoder_getPosition(h, 0, &pos);
     last_known_pos_ = pos;

@@ -30,6 +30,6 @@ private:
     double wheel_rad_;
 };
 
-} // namespace base
+} 
 
-#endif // BASE_KINEMATICS_CALCULATOR_H
+#endif 
