@@ -3,11 +3,17 @@
 <package format="3">
   <name>robot_description</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>URDF and description for my robot with laser and camera</description>
   <maintainer email="norika.schneider@gmail.com">norika-schneider</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <!-- Runtime dependencies -->
+  <exec_depend>urdf</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
 
   <depend>rclcpp</depend>
 
