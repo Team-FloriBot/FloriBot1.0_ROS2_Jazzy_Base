@@ -3,7 +3,7 @@ from launch_ros.actions import Node
 import os
 
 def generate_launch_description():
-    urdf_file = "robot.urdf.xacro"
+    urdf_file = "urdf/robot.urdf.xacro"
 
     return LaunchDescription([
         Node(
