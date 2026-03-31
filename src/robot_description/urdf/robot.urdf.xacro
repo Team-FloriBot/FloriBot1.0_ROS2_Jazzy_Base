@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<robot name="FloriBot1.0">
+
+  <!-- Base -->
+  <link name="base_link"/>
+
+  <!-- Laser -->
+  <link name="laser_frame"/>
+
+  <joint name="laser_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="laser_frame"/>
+    
+    <!-- Position relativ zum Roboter -->
+    <origin xyz="0.2 0.0 0.3" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Kamera -->
+  <link name="camera_frame"/>
+
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_frame"/>
+    
+    <origin xyz="0.1 0.0 0.5" rpy="0 0 0"/>
+  </joint>
+
+</robot>
