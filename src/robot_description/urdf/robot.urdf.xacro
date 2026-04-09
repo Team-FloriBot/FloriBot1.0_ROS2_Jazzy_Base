@@ -2,27 +2,113 @@
 <robot name="FloriBot1.0">
 
   <!-- Base -->
-  <link name="base_link"/>
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size = "0.7 0.5 0.5"/>
+      </geometry>
+    </visual>
+  </link>
+
+
+  <!-- Wheels -->
+  <link name="front_left_wheel_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius = "0.2" length = "0.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="front_right_wheel_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius = "0.2" length = "0.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+    <link name="rear_left_wheel_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius = "0.2" length = "0.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="rear_right_wheel_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder radius = "0.2" length = "0.05"/>
+      </geometry>
+    </visual>
+  </link>
+    
 
   <!-- Laser -->
-  <link name="laser_frame"/>
+  <link name="laser_frame">
+    <visual>
+      <geometry>
+        <box size = "0.05 0.05 0.05"/>
+      </geometry>
+    </visual>
+  </link>
 
+  <!-- Kamera -->
+  <link name="camera_frame">
+    <visual>
+      <geometry>
+        <box size = "0.05 0.05 0.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+
+  <!-- Laser Joint -->
   <joint name="laser_joint" type="fixed">
     <parent link="base_link"/>
     <child link="laser_frame"/>
-    
-    <!-- Position relativ zum Roboter -->
-    <origin xyz="0.2 0.0 0.3" rpy="0 0 0"/>
+    <origin xyz="0.35 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
-  <!-- Kamera -->
-  <link name="camera_frame"/>
-
+  <!-- Kamera Joint-->
   <joint name="camera_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera_frame"/>
-    
-    <origin xyz="0.1 0.0 0.5" rpy="0 0 0"/>
+    <origin xyz="0.1 0.0 0.275" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Wheel Joints-->
+  <joint name="front_left_wheel_joint" type="continuous">
+    <axis xyz="0 1 0"/>
+    <parent link="base_link"/>
+    <child link="front_left_wheel_link"/>
+    <origin xyz="0.3 -0.25 -0.25" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="front_right_wheel_joint" type="continuous">
+    <axis xyz="0 1 0"/>
+    <parent link="base_link"/>
+    <child link="front_right_wheel_link"/>
+    <origin xyz="0.3 0.25 -0.25" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="rear_left_wheel_joint" type="continuous">
+    <axis xyz="0 1 0"/>
+    <parent link="base_link"/>
+    <child link="rear_left_wheel_link"/>
+    <origin xyz="-0.3 -0.25 -0.25" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="rear_right_wheel_joint" type="continuous">
+    <axis xyz="0 1 0"/>
+    <parent link="base_link"/>
+    <child link="rear_right_wheel_link"/>
+    <origin xyz="-0.3 0.25 -0.25" rpy="0 0 0"/>
   </joint>
 
 </robot>
